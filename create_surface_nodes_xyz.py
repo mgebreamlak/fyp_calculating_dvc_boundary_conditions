@@ -1,5 +1,5 @@
 """
-create_surface_nodes_v3.py
+create_surface_nodes_xyz.py
 
 Parses the Marc/Mentat mesh file (.dat) and three DVC Tecplot files:
   B0001.dat   -> z-component (w)   "u-component [pixel]" in the original naming
@@ -11,40 +11,10 @@ Produces surface_nodes.xlsx with sheets:
   - bottom_surface_nodes
   - dvc_nodes              (x, y, z, u, v, w, isValid)
 
-    u  = displacement along DVC x-axis (pixel->mm, then axis-swapped -> Marc y direction)
-    v  = displacement along DVC y-axis (pixel->mm, then axis-swapped -> Marc x direction)
-    w  = displacement along DVC z-axis (pixel->mm, no axis swap    -> Marc z direction)
-
-Axis-swap convention (same as before, applied to both positions AND displacements):
-    DVC file column  ->  Marc frame direction
-    px_x (u-comp)   ->  Marc y
-    px_y (v-comp)   ->  Marc x
-    px_z (w-comp)   ->  Marc z
-
-So after the swap the stored columns in dvc_nodes are:
-    u_marc = v_dvc * PIXEL_SIZE   (DVC y-displacement -> Marc x)
-    v_marc = u_dvc * PIXEL_SIZE   (DVC x-displacement -> Marc y)
-    w_marc = w_dvc * PIXEL_SIZE   (DVC z-displacement -> Marc z)
-
 Pipeline applied to the DVC:
-  1. Axis swap: DVC_x -> Marc_y, DVC_y -> Marc_x, DVC_z -> Marc_z
-  2. Convert DVC pixels to mm (PIXEL_SIZE).
-  3. Translate so that DVC_LANDMARK_PX (a chosen anatomical feature) lands
+  1. Convert DVC pixels to mm (PIXEL_SIZE).
+  2. Translate so that DVC_LANDMARK_PX (chosen anatomical feature) lands
      exactly on MARC_LANDMARK in the output frame.
-  4. (Optional) Apply rotation Rx, Ry, Rz around MARC_LANDMARK.
-  5. (Optional) Apply additional fine-tuning translation dx, dy, dz.
-
-The same rotation (step 4) is applied to the displacement vector (u, v, w)
-in Marc-frame coords, since a rotation of the coordinate frame rotates
-vectors identically. The translation (steps 3 & 5) does NOT affect
-displacement vectors (they are free vectors, not position vectors).
-
-Pipeline applied to Marc surface nodes:
-  - Just read them straight from the .dat -- no rotation, no translation.
-
-Important: NO per-axis SCALING of DVC positions. The DVC keeps its real
-physical dimensions, so its measurement region occupies the correct
-sub-volume of the Marc specimen.
 """
 import re
 import numpy as np
@@ -72,8 +42,7 @@ PIXEL_SIZE = 0.039  # mm/pixel
 DVC_LANDMARK_PX = np.array([342.0, 304.0, 532.0])    # (px_x, px_y, px_z) in raw DVC pixel coords
 MARC_LANDMARK   = np.array([13.41223140, -95.48385620, -1220.89936])  # (x, y, z) in Marc mesh coords (mm)
 
-# Optional rotation around the Marc landmark (degrees), applied to the DVC
-# AFTER landmark alignment.
+# Optional rotation around the Marc landmark (degrees), applied to the DVC afterlandmark alignment.
 Rx = 0.0
 Ry = 0.0
 Rz = 0.0
