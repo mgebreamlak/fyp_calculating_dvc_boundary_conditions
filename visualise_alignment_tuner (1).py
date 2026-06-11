@@ -4,7 +4,7 @@ visualise_alignment_tuner.py
 Interactive DVC alignment tuner. You drag sliders to rotate the DVC point
 cloud relative to the Marc mesh, watch the alignment update live in a single
 3D panel, and read off the rotation values to paste back into
-create_surface_nodes_v3.py.
+create_surface_nodes_xyz.py.
 
 How to use:
   1) Run the script.
@@ -13,15 +13,15 @@ How to use:
      pipeline.
   3) Drag the 3D panel with left mouse to look around.
   4) The current Rx, Ry, Rz values are shown live at the bottom of the
-     window -- copy these into create_surface_nodes_v3.py.
+     window -- copy these into create_surface_nodes_xyz.py.
   5) Close the window when done -- the final values are printed and a
      snapshot PNG is saved.
 
-Same transformation chain as create_surface_nodes_v3.py:
+Same transformation chain as create_surface_nodes_xyz.py:
   1) axis swap (DVC x <-> y)
   2) pixel -> mm
   3) translate so DVC_LANDMARK_PX lands on MARC_LANDMARK
-  4) rotation [Rx, Ry, Rz] about MARC_LANDMARK   <-- THIS IS WHAT YOU TUNE
+  4) rotation [Rx, Ry, Rz] about MARC_LANDMARK
 
 The DVC point cloud is COLOUR-CODED by displacement magnitude (column 4 of the
 tecplot file -- the 'w' value). A colorbar is added on the right.
@@ -35,9 +35,6 @@ from matplotlib.colors import Normalize
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from scipy.spatial.transform import Rotation
 
-# ============================
-# EDIT THESE -- match create_surface_nodes_v3.py exactly
-# ============================
 dat_file       = r"C:\Users\rahwa.tecle\OneDrive - Imperial College London\FYP\Mesh Only\250matprop.dat"
 dvc_nodes_file = r"C:\Users\rahwa.tecle\OneDrive - Imperial College London\FYP\B0001.dat"
 output_png     = r"C:\Users\rahwa.tecle\OneDrive - Imperial College London\FYP\Mesh Only\alignment_tuner_snapshot.png"
