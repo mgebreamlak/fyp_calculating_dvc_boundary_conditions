@@ -1,1 +1,4 @@
 This repository contains code for the creation of a procedure file to apply DVC-based displacement boundary conditions to an FE model.
+visualise_alignment_tuner (1).py loads a user interface that allows you to manually align the DVC data (measured from a micro-CT) with the Marc mesh (segmented from a quantitative-CT). The resulting Euler angles should be inserted into make_bc_proc (2).py
+create_surface_nodes_xyz.py takes in a Marc Mentat .dat file and DVC output data and produces an .xlsx spreadsheet with the top and bottom surface nodes of the Marc mesh along with the DVC nodes translated so the anatomical landmarks are coincident
+make_bc_proc (2).py takes in the .xlsx spreadsheet, aligns and interpolates the DVC data to find a corresponding displacement vector for each of the top and bottom surface nodes and formats each component into a procedure file that can be loaded into Marc Mentat
