@@ -1,31 +1,23 @@
 """
-make_bc_proc.py  (with Marc-side rotation for interpolation, "Option B")
-                 Extended to interpolate u, v, w (all three DVC displacement
-                 components) and project the full 3D vector onto the loading axis.
-
-Pipeline:
-
-  surface_nodes.xlsx  ->  apply_bc.proc
+make_bc_proc.py 
+Extended to interpolate u, v, w (all three DVC displacement components) and project the full 3D vector onto the loading axis.
+surface_nodes.xlsx  ->  apply_bc.proc
 
 Steps:
-  1. Read surface_nodes.xlsx (Marc surface nodes + DVC valid nodes, both already
-     in the post-create_surface_nodes_v3 frame).
-     dvc_nodes sheet now has columns: x, y, z, u, v, w, isValid
+  1. Read surface_nodes.xlsx -- dvc_nodes sheet now has columns: x, y, z, u, v, w, isValid
        u = displacement along Marc x-axis (mm)
        v = displacement along Marc y-axis (mm)
        w = displacement along Marc z-axis (mm)
 
   2. Compute a rotated copy of the Marc surface coordinates (rotated about
      INTERP_ROT_PIVOT by INTERP_ROT_EULER).  Rotation is applied to MARC for the
-     PURPOSE OF INTERPOLATION ONLY -- the DVC stays in its original frame so
+     purpose of interpolation only -- the DVC stays in its original frame so
      its z-layer structure is preserved.
 
-  3. Per-DVC-z-layer 2D interpolation (linear in convex hull, nearest-neighbour
-     fallback outside) of u, v, w independently onto each rotated Marc surface
+  3. Per-DVC-z-layer 2D interpolation of u, v, w independently onto each rotated Marc surface
      (x, y).
 
-  4. Local-z Gaussian blend across nearby DVC z-layers, then mild Laplacian
-     smoothing on the surface mesh -- applied independently to each component.
+  4. Local-z Gaussian blend across nearby DVC z-layers applied independently to each component.
 
   5. For each node, project the interpolated displacement vector (u, v, w) onto
      the LOADING_AXIS unit vector n:
@@ -38,10 +30,8 @@ Steps:
      This is equivalent to summing the individual axis projections:
          dx = (u*nx)*nx + (v*ny)*nx + (w*nz)*nx  = scalar * nx   etc.
 
-  6. Pair each projected BC vector with its ORIGINAL (un-rotated) Marc node ID
+  6. Pair each projected BC vector with its original (un-rotated) Marc node ID
      and write a Mentat .proc file.
-
-Tunables at top.
 """
 import numpy as np
 from typing import Optional
@@ -59,13 +49,13 @@ proc_file  = r"C:\Users\rahwa.tecle\OneDrive - Imperial College London\FYP\Mesh 
 SURFACE_SHEETS = ("top_surface_nodes", "bottom_surface_nodes")
 
 # ---- Interpolation rotation ----
-# These are the rotations you found visually with visualise_alignment.py.
-# Whatever rotation made the DVC sit nicely inside Marc THERE, set the same
-# Euler angles here.  This script then rotates the MARC nodes by the INVERSE
+# These are the rotations found visually with visualise_alignment.py.
+# Whatever rotation made the DVC sit nicely inside Marc there, set the same
+# Euler angles here.  This script then rotates the MARC nodes by the inverse
 # of that, so the DVC keeps its original z-layer structure for interpolation.
 #
 # INTERP_ROT_PIVOT should match the pivot used in the visualiser (default:
-# MARC_LANDMARK from create_surface_nodes_v3.py).
+# MARC_LANDMARK from create_surface_nodes_xyz.py).
 INTERP_ROT_EULER = (0.0, 22.0, -84.5)
 INTERP_ROT_PIVOT = np.array([13.41223140, -95.48385620, -1220.89936])
 
@@ -111,11 +101,7 @@ def safe_int(v, default: int = 0) -> int:
 
 def read_dvc_nodes_valid(ws) -> np.ndarray:
     """
-    Read dvc_nodes sheet.  Accepts both the old schema (x,y,z,w,isValid) and
-    the new schema (x,y,z,u,v,w,isValid).
-
-    Returns array with columns [x, y, z, u, v, w] for valid rows only.
-    For old-schema files, u and v are set to 0.0.
+    Read dvc_nodes sheet. Returns array with columns [x, y, z, u, v, w] for valid rows only.
     """
     header = [c.value for c in next(ws.iter_rows(min_row=1, max_row=1))]
     col = {name: idx for idx, name in enumerate(header)}
@@ -367,7 +353,7 @@ def main():
         v_arr = results["v"]
         w_arr = results["w"]
 
-        # Pair with ORIGINAL (un-rotated) node IDs
+        # Pair with original node IDs
         for nid, u_val, v_val, w_val in zip(nids, u_arr, v_arr, w_arr):
             if nid in per_node_uvw:
                 duplicate_nodes += 1
