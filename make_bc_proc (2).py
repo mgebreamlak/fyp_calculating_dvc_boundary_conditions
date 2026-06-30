@@ -64,10 +64,7 @@ INTERP_ROT_PIVOT = np.array([13.41223140, -95.48385620, -1220.89936])
 # The scalar magnitude (dot product) is then re-applied along the axis to give
 # the BC components dx, dy, dz.
 #
-# "auto" derives the axis from INTERP_ROT_EULER: the DVC's natural loading
-# direction is its own z-axis; after the visualiser rotation that becomes
-#     R_visualiser @ (0, 0, 1)
-# in the file frame.  Override with an explicit [nx, ny, nz] if needed.
+# "auto" derives the axis from INTERP_ROT_EULER. Override with an explicit [nx, ny, nz] if needed.
 LOADING_AXIS = "auto"
 
 # ---- Interpolation parameters ----
@@ -371,16 +368,6 @@ def main():
             u_interp, v_interp, w_interp = per_node_uvw[nid]
             if i % 5000 == 0:
                 print(f"  BC {i+1}/{n_total}...")
-
-            # Project the full 3D displacement vector onto the loading axis:
-            #   scalar = u*nx + v*ny + w*nz  (sum of each component's projection)
-            # then re-apply that scalar along the axis to get BC components.
-            #scalar = (u_interp * axis[0]
-            #        + v_interp * axis[1]
-            #        + w_interp * axis[2])
-            #dx = scalar * axis[0]
-            #dy = scalar * axis[1]
-            #dz = scalar * axis[2]
 
             # Rotate the interpolated displacement from DVC frame to Marc frame
             disp_marc = R_visualiser.as_matrix() @ np.array([u_interp, v_interp, w_interp])
