@@ -220,17 +220,14 @@ def main():
         )
 
     # ---- Landmark alignment setup ----
-    # DVC landmark: convert raw pixel coords to post-swap, mm coords.
-    # Axis swap: (px_x, px_y, px_z) -> (phys_x=py*ps, phys_y=px*ps, phys_z=pz*ps)
     dvc_lm_postswap_mm = np.array([
-        DVC_LANDMARK_PX[0] * PIXEL_SIZE,   # was py, now phys_x
-        DVC_LANDMARK_PX[1] * PIXEL_SIZE,   # was px, now phys_y
-        DVC_LANDMARK_PX[2] * PIXEL_SIZE,   # pz unchanged
+        DVC_LANDMARK_PX[0] * PIXEL_SIZE,   
+        DVC_LANDMARK_PX[1] * PIXEL_SIZE,   
+        DVC_LANDMARK_PX[2] * PIXEL_SIZE,  
     ])
     translation = MARC_LANDMARK - dvc_lm_postswap_mm
 
     print(f"\n  DVC landmark (pixel):           {DVC_LANDMARK_PX}")
-    print(f"  DVC landmark (post-swap, mm):   {dvc_lm_postswap_mm}")
     print(f"  Marc landmark (mm):             {MARC_LANDMARK}")
     print(f"  Landmark-alignment translation: {translation}")
     print(f"  Extra fine-tune translation:    ({dx:+.3f}, {dy:+.3f}, {dz:+.3f}) mm")
@@ -248,8 +245,6 @@ def main():
         v_px   = row_v[3]    # y-displacement in DVC pixels
         is_valid = row_w[4]
 
-        # --- POSITION: axis swap + pixel->mm ---
-        # DVC (px_x, px_y, px_z) -> Marc (py*ps, px*ps, pz*ps)
         phys_x = px * PIXEL_SIZE
         phys_y = py * PIXEL_SIZE
         phys_z = pz * PIXEL_SIZE
@@ -261,15 +256,10 @@ def main():
         # Fine-tune translation
         p[0] += dx; p[1] += dy; p[2] += dz
 
-        # --- DISPLACEMENT: axis swap + pixel->mm ---
-        # Axis swap mirrors the position swap:
-        #   DVC u (along px_x) -> Marc y direction  => store as v_marc
-        #   DVC v (along px_y) -> Marc x direction  => store as u_marc
-        #   DVC w (along px_z) -> Marc z direction  => store as w_marc
         if None not in (u_px, v_px, w_px):
-            u_marc_mm = u_px * PIXEL_SIZE   # DVC y-disp -> Marc x
-            v_marc_mm = v_px * PIXEL_SIZE   # DVC x-disp -> Marc y
-            w_marc_mm = w_px * PIXEL_SIZE   # DVC z-disp -> Marc z
+            u_marc_mm = u_px * PIXEL_SIZE   
+            v_marc_mm = v_px * PIXEL_SIZE   
+            w_marc_mm = w_px * PIXEL_SIZE   
 
             # Apply the same rotation that was applied to positions
             # (displacement vectors transform identically to position offsets)
