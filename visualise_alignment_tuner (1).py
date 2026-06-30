@@ -17,12 +17,6 @@ How to use:
   5) Close the window when done -- the final values are printed and a
      snapshot PNG is saved.
 
-Same transformation chain as create_surface_nodes_xyz.py:
-  1) axis swap (DVC x <-> y)
-  2) pixel -> mm
-  3) translate so DVC_LANDMARK_PX lands on MARC_LANDMARK
-  4) rotation [Rx, Ry, Rz] about MARC_LANDMARK
-
 The DVC point cloud is COLOUR-CODED by displacement magnitude (column 4 of the
 tecplot file -- the 'w' value). A colorbar is added on the right.
 """
@@ -68,20 +62,20 @@ DVC_ALPHA  = 0.85
 DVC_SIZE   = 6
 
 # Colormap for DVC displacement
-DVC_CMAP = "viridis"     # try also "plasma", "inferno", "turbo", "coolwarm"
+DVC_CMAP = "viridis"  
 DVC_CLIP_PERCENTILES = (2.0, 98.0)
 
-# Slider styling -- sleek and professional
+# Slider styling
 SLIDER_TRACK_COLOR  = "#E0E0E0"
 SLIDER_FILL_COLOR   = "#1976D2"
 SLIDER_LABEL_COLOR  = "#37474F"
 
 # Axis / pane styling
-PANE_COLOR     = "#FAFAFA"   # near-white background panes
-GRID_COLOR     = "#E0E0E0"   # light grey gridlines
-AXIS_LINE_COLOR = "#B0BEC5"  # subtle axis spines
-TEXT_COLOR     = "#37474F"   # dark slate for labels/ticks
-FIG_BG         = "#FFFFFF"   # pure white figure background
+PANE_COLOR     = "#FAFAFA"  
+GRID_COLOR     = "#E0E0E0"  
+AXIS_LINE_COLOR = "#B0BEC5" 
+TEXT_COLOR     = "#37474F"  
+FIG_BG         = "#FFFFFF"  
 
 FLATTEN_BY_PCA = True
 # ============================
@@ -197,13 +191,10 @@ def apply_flatten(pts, R, centroid):
 
 
 def style_3d_axes(ax):
-    """Clean, light styling for a matplotlib 3D axes.
-
-    Replaces the default grey panes and dark gridlines with near-white panes,
-    light grey gridlines, and subtle axis spines. Reads more like a CAD/FEA
-    viewer than a default matplotlib plot.
+    """ Replaces the default grey panes and dark gridlines with near-white panes,
+    light grey gridlines, and subtle axis spines.
     """
-    # Panes (the three "walls" behind the data) -- near-white, no border
+    # Panes -- near-white, no border
     for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
         axis.pane.set_facecolor(PANE_COLOR)
         axis.pane.set_edgecolor(AXIS_LINE_COLOR)
@@ -232,8 +223,6 @@ def style_3d_axes(ax):
 
 
 def style_slider(slider):
-    """Apply sleek visual styling to a matplotlib Slider widget."""
-    # Slim, modern look: thin track, flat coloured fill, no chunky bar
     slider.track.set_facecolor(SLIDER_TRACK_COLOR)
     slider.track.set_edgecolor("none")
     slider.poly.set_facecolor(SLIDER_FILL_COLOR)
@@ -384,7 +373,7 @@ def main():
     leg = ax.legend(loc="upper left", markerscale=1.5, fontsize=9,
                     frameon=False, labelcolor=TEXT_COLOR)
 
-    # ---- Colorbar ----
+    # Colorbar
     sm = cm.ScalarMappable(norm=dvc_norm, cmap=dvc_cmap)
     sm.set_array([])
     cbar_ax = fig.add_axes([0.89, 0.40, 0.02, 0.45])
@@ -393,8 +382,7 @@ def main():
     cbar.ax.tick_params(labelsize=8)
     cbar.outline.set_visible(False)
 
-    # ---- Sliders (rotation only, sleeker) ----
-    # Three slim sliders stacked vertically -- cleaner than a row of fat ones.
+    # Sliders (rotation only)
     slider_specs = [
         ("Rx", Rx0, -ROT_RANGE_DEG, ROT_RANGE_DEG),
         ("Ry", Ry0, -ROT_RANGE_DEG, ROT_RANGE_DEG),
@@ -404,9 +392,9 @@ def main():
 
     slider_left = 0.20
     slider_w    = 0.50
-    slider_h    = 0.018   # thin and sleek
+    slider_h    = 0.018 
     slider_gap  = 0.025
-    base_y      = 0.135   # vertical position of the top (first) slider
+    base_y      = 0.135  
 
     for i, (label, init, lo, hi) in enumerate(slider_specs):
         y = base_y - i * slider_gap
